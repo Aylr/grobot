@@ -111,6 +111,8 @@ goForwardOrBack(2000, 255, 0);
   Serial.print("direction)/57.2957795) = ");
   Serial.println(sin(((315-direction)/57.2957795)));
 #endif
+
+
 //    goTheta(1000, 0, 200);
 //    goTheta(1000, 90, 200);
 //    goTheta(1000, 180, 200);
@@ -346,6 +348,23 @@ void rotate(unsigned int time, unsigned char speed, bool direction){
   
 }
 
+
+//Rotate
+
+void simpleRotate(unsigned int time, unsigned char speed, bool direction){
+
+  runWheel(1,direction,speed);
+  runWheel(2,direction,speed);
+  runWheel(3,direction,speed);
+  runWheel(4,direction,speed);
+
+  digitalWrite(13, HIGH); //LED indicator ON
+
+  delay(time); 
+  stop();  //how long to actually go
+  
+}
+
 void runWheel(unsigned char wheelNum, bool direction, unsigned char speed){
   // This function abstracts out all the mucking about with setting the appropriate
   // pin HIGH/LOW for each wheel. The idea is to simply make a call to runWheel()
@@ -376,10 +395,10 @@ void runWheel(unsigned char wheelNum, bool direction, unsigned char speed){
 
   analogWrite(tempPWMPin, speed);   //set the speed on the given wheel
 
-  if(direction == true){            //decide whether CW or CCW is 1 or 0
+  if(direction == 1){            //decide whether CW or CCW is 1 or 0
     digitalWrite(tempWheelPin1, HIGH);
     digitalWrite(tempWheelPin1, LOW);
-  }else if(direction == false){
+  }else if(direction == 0){
     digitalWrite(tempWheelPin1, LOW);
     digitalWrite(tempWheelPin1, HIGH);
   }
@@ -389,7 +408,7 @@ void runWheel(unsigned char wheelNum, bool direction, unsigned char speed){
 void simpleRunWheelTest(unsigned int time, unsigned int speed){
   // This funciton runs each wheel CW & CCW for given time/speed using the new 
   // runWheel() function to make life simpler.
-  
+
   runWheel(1,1,speed);
   delay(time);
   runWheel(1,0,speed);

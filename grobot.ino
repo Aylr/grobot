@@ -340,6 +340,71 @@ void rotate(unsigned int time, unsigned char speed, bool direction){
   
 }
 
+void runWheel(unsigned char wheelNum, bool direction, unsigned char speed){
+  // This function abstracts out all the mucking about with setting the appropriate
+  // pin HIGH/LOW for each wheel. The idea is to simply make a call to runWheel()
+  // so you don't have to constantly remember which HIGH/LOW combination is which
+  // direction. For example, to run wheel 3 CW at speed 150, run runWheel(3,1,150)
+
+  unsigned char tempWheelPin1;
+  unsigned char tempWheelPin2;
+  unsigned char tempPWMPin;
+
+  if(wheelNum == 1){            //wheel 1 FL
+    tempPWMPin = pwm1;
+    tempWheelPin1 = FL1;
+    tempWheelPin2 = FL2;
+  }else if(wheelNum == 2){      //wheel 2 BL
+    tempPWMPin = pwm2;
+    tempWheelPin1 = BL1;
+    tempWheelPin2 = BL2;
+  }else if(wheelNum == 3){      //wheel 3 BR
+    tempPWMPin = pwm3;
+    tempWheelPin1 = BR1;
+    tempWheelPin2 = BR2;    
+  }else if(wheelNum == 4){      //wheel 4 FR
+    tempPWMPin = pwm4;
+    tempWheelPin1 = FR1;
+    tempWheelPin2 = FR2;    
+  }
+
+  analogWrite(tempPWMPin, speed);   //set the speed on the given wheel
+
+  if(direction == true){            //decide whether CW or CCW is 1 or 0
+    digitalWrite(tempWheelPin1, HIGH);
+    digitalWrite(tempWheelPin1, LOW);
+  }else if(direction == false){
+    digitalWrite(tempWheelPin1, LOW);
+    digitalWrite(tempWheelPin1, HIGH);
+  }
+}
+
+
+void simpleRunWheelTest(unsigned int time, unsigned int speed){
+  // This funciton runs each wheel CW & CCW for given time/speed using the new 
+  // runWheel() function to make life simpler.
+  
+  runWheel(1,1,speed);
+  delay(time);
+  runWheel(1,0,speed);
+  delay(time);
+  
+  runWheel(2,1,speed);
+  delay(time);
+  runWheel(2,0,speed);
+  delay(time);
+
+  runWheel(3,1,speed);
+  delay(time);
+  runWheel(3,0,speed);
+  delay(time);
+
+  runWheel(4,1,speed);
+  delay(time);
+  runWheel(4,0,speed);
+  delay(time);
+}
+
 
 void runWheelsIndividually(unsigned int time){
   //FL CCW

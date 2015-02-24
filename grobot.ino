@@ -111,13 +111,28 @@ goForwardOrBack(2000, 255, 0);
   Serial.print("direction)/57.2957795) = ");
   Serial.println(sin(((315-direction)/57.2957795)));
 #endif
-  goTheta(1000, 0, 200);
-  goTheta(1000, 90, 200);
-  goTheta(1000, 180, 200);
-  goTheta(1000, 270, 200);
-  goTheta(1000, 0, 200);
-
- runWheelsIndividually(500);
+//    goTheta(1000, 0, 200);
+//    goTheta(1000, 90, 200);
+//    goTheta(1000, 180, 200);
+//    goTheta(1000, 270, 200);
+    //goTheta(1000, 0, 200);
+//
+    goTheta(2500, 30, 150);
+    goTheta(2500, 150, 150);
+    goTheta(2500, 270, 150);
+    
+    goTheta(2500, 30, 150);
+    goTheta(2500, 150, 150);
+    goTheta(2500, 270, 150);
+    
+//
+//    goTheta(1000, 0, 255);
+//    goTheta(1400, 135, 255);
+//    goTheta(2000, 0, 30);
+ //runWheelsIndividually(500);
+  
+  rotate(2000,255,0);
+  rotate(2000,255,1);
 
  }
 
@@ -286,6 +301,43 @@ void stop(){
   digitalWrite(BR1, LOW); //wheel 4 BR
   digitalWrite(BR2, LOW);
   digitalWrite(13, LOW);  //LED inidicator OFF
+}
+
+
+//Rotate
+
+void rotate(unsigned int time, unsigned char speed, bool direction){
+  analogWrite(pwm1, speed);
+  analogWrite(pwm2, speed);
+  analogWrite(pwm3, speed);
+  analogWrite(pwm4, speed);
+
+
+  if(direction == 1){
+    digitalWrite(FL1, HIGH);//wheel 1 FL
+    digitalWrite(FL2, LOW);
+    digitalWrite(FR1, HIGH);//wheel 2 FR
+    digitalWrite(FR2, LOW);
+    digitalWrite(BL1, HIGH);//wheel 3 BL
+    digitalWrite(BL2, LOW);
+    digitalWrite(BR1, HIGH); //wheel 4 BR
+    digitalWrite(BR2, LOW);
+  }else if(direction == 0){
+    digitalWrite(FL1, LOW);
+    digitalWrite(FL2, HIGH);
+    digitalWrite(FR1, LOW);
+    digitalWrite(FR2, HIGH);
+    digitalWrite(BL1, LOW);
+    digitalWrite(BL2, HIGH);
+    digitalWrite(BR1, LOW);
+    digitalWrite(BR2, HIGH);
+  }
+
+  digitalWrite(13, HIGH); //LED indicator ON
+
+  delay(time); 
+  stop();  //how long to actually go
+  
 }
 
 

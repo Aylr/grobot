@@ -141,10 +141,14 @@ void loop(){
 
 }
 
-void goTheta(unsigned int time, float direction, unsigned char speed){ //note this only does positive numbers
-  float ratios[4];// = {0,0,0,0};    //used for maths
-  float max = 0;                //used to find the largest ratio vector
-  int pwm[4];// = {0,0,0,0};       //used for final 0-255 pwm
+void goTheta(unsigned int time, float direction, unsigned char speed){
+  // This function takes a time, direction (positive 0-360 degrees CCW from front of robot), and speed (0-255)
+  // It then does some maths and runs each wheel appropriately to get the robot to run
+  // the given directions
+
+  float ratios[4];    //used for maths
+  float max = 0;      //used to find the largest ratio vector
+  int pwm[4];         //used for final 0-255 pwm
 
   #ifdef DEBUG
     Serial.print("\ngoTheta called with time = ");
@@ -153,10 +157,11 @@ void goTheta(unsigned int time, float direction, unsigned char speed){ //note th
     Serial.println(direction);
   #endif
 
-  //ghetto sanity checking
-  if(direction>360){
+  // ghetto sanity checking
+  // This bit may definitely cause trouble in the future if values outside 0-360 are expected to work
+  if(direction>360){      //if given direction is more than 360, just use 360
     direction=360;
-  }else if(direction<0){
+  }else if(direction<0){  // if given direction is negative, just go 0
     direction = 0;
   }
 
@@ -281,12 +286,12 @@ void goForwardOrBack(unsigned int time, unsigned char speed, bool direction){
   digitalWrite(13, HIGH); //LED indicator ON
 
   delay(time);     //how long to actually go
-
-  // stop
-  stop();
+  stop();         // stop!
 }
 
+
 void stop(){
+  // This simple function stops all motors without any kind of intelligent braking.
   analogWrite(pwm1, 0);
   analogWrite(pwm2, 0);
   analogWrite(pwm3, 0);
@@ -300,6 +305,7 @@ void stop(){
   digitalWrite(BL2, LOW);
   digitalWrite(BR1, LOW); //wheel 4 BR
   digitalWrite(BR2, LOW);
+
   digitalWrite(13, LOW);  //LED inidicator OFF
 }
 

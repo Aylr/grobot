@@ -23,8 +23,8 @@
 #define pwm3 9
 #define pwm4 7
 
-#define DEBUG TRUE
-//#define LEARNABOUTMATHS //uncomment to get a bunch of serial output to learn about sin maths
+#define DEBUG TRUE        // uncomment to show serial debug messages
+//#define LEARNABOUTMATHS // uncomment to get a bunch of serial output to learn about sin() maths
 
 
 void setup() {
@@ -46,24 +46,6 @@ void setup() {
   pinMode(pwm4, OUTPUT);
 
   pinMode(13, OUTPUT);
-  
-  int s=255;
-  int d=200;
-  int f=150;
-  int drivedelay1=800;
-  int drivedelay2=1000;
-  int drivedelayspin=2000;
-
-
-  //delay(drivedelay2);
-/*
-goForwardOrBack(2000, 255, 1);
-goForwardOrBack(1000, 100, 1);
-goForwardOrBack(2000, 50, 1);
-goForwardOrBack(1000, 50, 0);
-goForwardOrBack(1000, 100, 0);
-goForwardOrBack(2000, 255, 0);
-*/
 
 #ifdef LEARNABOUTMATHS
   Serial.println("Testing Maths");
@@ -111,37 +93,21 @@ goForwardOrBack(2000, 255, 0);
   Serial.print("direction)/57.2957795) = ");
   Serial.println(sin(((315-direction)/57.2957795)));
 #endif
+ 
 
+  runWheelsIndividually(500);   // test each wheel CCW & CW for 500ms
 
-//    goTheta(1000, 0, 200);
-//    goTheta(1000, 90, 200);
-//    goTheta(1000, 180, 200);
-//    goTheta(1000, 270, 200);
-    //goTheta(1000, 0, 200);
-//
-    goTheta(2500, 30, 150);
-    goTheta(2500, 150, 150);
-    goTheta(2500, 270, 150);
-    
-    goTheta(2500, 30, 150);
-    goTheta(2500, 150, 150);
-    goTheta(2500, 270, 150);
-    
-//
-//    goTheta(1000, 0, 255);
-//    goTheta(1400, 135, 255);
-//    goTheta(2000, 0, 30);
- //runWheelsIndividually(500);
+  square(2000, 255);            // draw a square of size 2000 and speed 255
   
-  rotate(2000,255,0);
+  rotate(2000,255,0);           // rotate
   rotate(2000,255,1);
 
- }
+}
 
 
 void loop(){
-
 }
+
 
 void goTheta(unsigned int time, float direction, unsigned char speed){
   // This function takes a time, direction (positive 0-360 degrees CCW from front of robot), and speed (0-255)
@@ -430,6 +396,12 @@ void simpleRunWheelTest(unsigned int time, unsigned int speed){
   delay(time);
 }
 
+void square(unsigned int time, unsigned char speed){     // make the robot perform a square of given "time" size & given speed
+  goTheta(time, 0, speed);
+  goTheta(time, 90, speed);
+  goTheta(time, 180, speed);
+  goTheta(time, 270, speed);
+}
 
 void runWheelsIndividually(unsigned int time){
   //FL CCW

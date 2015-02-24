@@ -223,40 +223,6 @@ void goTheta(unsigned int time, float direction, unsigned char speed){
 
 }
 
-//Forward
-void goForwardOrBack(unsigned int time, unsigned char speed, bool direction){
-  analogWrite(pwm1, speed);
-  analogWrite(pwm2, speed);
-  analogWrite(pwm3, speed);
-  analogWrite(pwm4, speed);
-
-
-  if(direction == 1){
-    digitalWrite(FL1, HIGH);//wheel 1 FL
-    digitalWrite(FL2, LOW);
-    digitalWrite(FR1, HIGH);//wheel 2 FR
-    digitalWrite(FR2, LOW);
-    digitalWrite(BL1, HIGH);//wheel 3 BL
-    digitalWrite(BL2, LOW);
-    digitalWrite(BR1, HIGH); //wheel 4 BR
-    digitalWrite(BR2, LOW);
-  }else if(direction == 0){
-    digitalWrite(FL1, LOW);
-    digitalWrite(FL2, HIGH);
-    digitalWrite(FR1, LOW);
-    digitalWrite(FR2, HIGH);
-    digitalWrite(BL1, LOW);
-    digitalWrite(BL2, HIGH);
-    digitalWrite(BR1, LOW);
-    digitalWrite(BR2, HIGH);
-  }
-
-  digitalWrite(13, HIGH); //LED indicator ON
-
-  delay(time);     //how long to actually go
-  stop();         // stop!
-}
-
 
 void stop(){
   // This simple function stops all motors without any kind of intelligent braking.
@@ -371,6 +337,14 @@ void runWheel(unsigned char wheelNum, bool direction, unsigned char speed){
 }
 
 
+void square(unsigned int time, unsigned char speed){     // make the robot perform a square of given "time" size & given speed
+  goTheta(time, 0, speed);
+  goTheta(time, 90, speed);
+  goTheta(time, 180, speed);
+  goTheta(time, 270, speed);
+}
+
+
 void simpleRunWheelTest(unsigned int time, unsigned int speed){
   // This funciton runs each wheel CW & CCW for given time/speed using the new 
   // runWheel() function to make life simpler.
@@ -396,12 +370,6 @@ void simpleRunWheelTest(unsigned int time, unsigned int speed){
   delay(time);
 }
 
-void square(unsigned int time, unsigned char speed){     // make the robot perform a square of given "time" size & given speed
-  goTheta(time, 0, speed);
-  goTheta(time, 90, speed);
-  goTheta(time, 180, speed);
-  goTheta(time, 270, speed);
-}
 
 void runWheelsIndividually(unsigned int time){
   //FL CCW

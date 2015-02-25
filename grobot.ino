@@ -4,6 +4,8 @@
 //After making all connections and uploading the program to arduino,
 //open serial monitor and input your option 1, 2, 3 or 4, the motors will run according to that.
 
+#include <math.h>
+
 //The pins below can be any digital pin
 
 #define FL1 22
@@ -95,17 +97,18 @@ void setup() {
 #endif
  
 
-  runWheelsIndividually(500);   // test each wheel CCW & CW for 500ms
+  //runWheelsIndividually(500);   // test each wheel CCW & CW for 500ms
 
-  square(2000, 255);            // draw a square of size 2000 and speed 255
-  
-  rotate(2000,255,0);           // rotate
-  rotate(2000,255,1);
+  goTheta(4000, 0, 255);        // go straight for 4 seconds
+  square(1500, 200);            // draw a square of size 2000 and speed 255
+  rotate(1000, 255, 0);
+
 
 }
 
 
 void loop(){
+  //put serial listener here
 }
 
 
@@ -167,7 +170,7 @@ void goTheta(unsigned int time, float direction, unsigned char speed){
   #endif
 
   for(int i=0;i<4;i++){             // for each element in the array
-    pwm[i] = speed*(ratios[i]/max);    //do the scaling math (and truncate float to int)
+    pwm[i] = round(speed*(ratios[i]/max));    //do the scaling math (and truncate float to int)
   }
 
   #ifdef DEBUG                    //print some useful stuff to check the maths
@@ -247,43 +250,6 @@ void stop(){
 //Rotate
 
 void rotate(unsigned int time, unsigned char speed, bool direction){
-  analogWrite(pwm1, speed);
-  analogWrite(pwm2, speed);
-  analogWrite(pwm3, speed);
-  analogWrite(pwm4, speed);
-
-
-  if(direction == 1){
-    digitalWrite(FL1, HIGH);//wheel 1 FL
-    digitalWrite(FL2, LOW);
-    digitalWrite(FR1, HIGH);//wheel 2 FR
-    digitalWrite(FR2, LOW);
-    digitalWrite(BL1, HIGH);//wheel 3 BL
-    digitalWrite(BL2, LOW);
-    digitalWrite(BR1, HIGH); //wheel 4 BR
-    digitalWrite(BR2, LOW);
-  }else if(direction == 0){
-    digitalWrite(FL1, LOW);
-    digitalWrite(FL2, HIGH);
-    digitalWrite(FR1, LOW);
-    digitalWrite(FR2, HIGH);
-    digitalWrite(BL1, LOW);
-    digitalWrite(BL2, HIGH);
-    digitalWrite(BR1, LOW);
-    digitalWrite(BR2, HIGH);
-  }
-
-  digitalWrite(13, HIGH); //LED indicator ON
-
-  delay(time); 
-  stop();  //how long to actually go
-  
-}
-
-
-//Rotate
-
-void simpleRotate(unsigned int time, unsigned char speed, bool direction){
 
   runWheel(1,direction,speed);
   runWheel(2,direction,speed);
@@ -292,9 +258,8 @@ void simpleRotate(unsigned int time, unsigned char speed, bool direction){
 
   digitalWrite(13, HIGH); //LED indicator ON
 
-  delay(time); 
-  stop();  //how long to actually go
-  
+  delay(time); //how long to actually go
+  stop();
 }
 
 void runWheel(unsigned char wheelNum, bool direction, unsigned char speed){
@@ -329,10 +294,10 @@ void runWheel(unsigned char wheelNum, bool direction, unsigned char speed){
 
   if(direction == 1){            //decide whether CW or CCW is 1 or 0
     digitalWrite(tempWheelPin1, HIGH);
-    digitalWrite(tempWheelPin1, LOW);
+    digitalWrite(tempWheelPin2, LOW);
   }else if(direction == 0){
     digitalWrite(tempWheelPin1, LOW);
-    digitalWrite(tempWheelPin1, HIGH);
+    digitalWrite(tempWheelPin2, HIGH);
   }
 }
 

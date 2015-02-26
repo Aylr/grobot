@@ -268,10 +268,10 @@ void runWheel(unsigned char wheelNum, bool direction, unsigned char speed){
 
   analogWrite(tempPWMPin, speed);   //set the speed on the given wheel
 
-  if(direction == 1){            //decide whether CW or CCW is 1 or 0
+  if(direction == 1){                   // 1 = CCW
     digitalWrite(tempWheelPin1, HIGH);
     digitalWrite(tempWheelPin2, LOW);
-  }else if(direction == 0){
+  }else if(direction == 0){             // 0 = CW
     digitalWrite(tempWheelPin1, LOW);
     digitalWrite(tempWheelPin2, HIGH);
   }
@@ -290,25 +290,14 @@ void simpleRunWheelTest(unsigned int time, unsigned int speed){
   // This funciton runs each wheel CW & CCW for given time/speed using the new 
   // runWheel() function to make life simpler.
 
-  runWheel(1,1,speed);
-  delay(time);
-  runWheel(1,0,speed);
-  delay(time);
-  
-  runWheel(2,1,speed);
-  delay(time);
-  runWheel(2,0,speed);
-  delay(time);
+  for(int i=1;i<5;i++){       // for each of 4 wheels
+    runWheel(i,1,speed);      // run CCW
+    delay(time);
+    runWheel(i,0,speed);      // run CW
+    delay(time);
+  }
 
-  runWheel(3,1,speed);
-  delay(time);
-  runWheel(3,0,speed);
-  delay(time);
-
-  runWheel(4,1,speed);
-  delay(time);
-  runWheel(4,0,speed);
-  delay(time);
+  stop();
 }
 
 

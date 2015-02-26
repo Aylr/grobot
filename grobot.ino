@@ -228,11 +228,10 @@ void stop(){
 
 void rotate(unsigned int time, unsigned char speed, bool direction){
 
-  runWheel(1,direction,speed);
-  runWheel(2,direction,speed);
-  runWheel(3,direction,speed);
-  runWheel(4,direction,speed);
-
+  for(int i=0;i<4;i++){
+    runWheel((i+1),direction,speed);
+  }
+  
   digitalWrite(13, HIGH); //LED indicator ON
 
   delay(time); //how long to actually go

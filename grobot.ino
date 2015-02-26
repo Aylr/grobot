@@ -1,9 +1,3 @@
-// This program is for test run of your motors with the motor shields.
-//Please make your connections to motor and motor shield as given in handout.
-
-//After making all connections and uploading the program to arduino,
-//open serial monitor and input your option 1, 2, 3 or 4, the motors will run according to that.
-
 #include <math.h>
 
 //The pins below can be any digital pin
@@ -30,6 +24,31 @@
 
 
 void setup() {
+  #ifdef LEARNABOUTMATHS
+    Serial.println("Testing Maths");
+    float direction = 0;
+
+    Serial.print("sin(((45-");
+    Serial.print(direction);
+    Serial.print("direction)/57.2957795) = ");
+    Serial.println(sin(((45-direction)/57.2957795)));
+
+    Serial.print("sin(((135-");
+    Serial.print(direction);
+    Serial.print("direction)/57.2957795) = ");
+    Serial.println(sin(((135-direction)/57.2957795)));
+
+    Serial.print("sin(((225-");
+    Serial.print(direction);
+    Serial.print("direction)/57.2957795) = ");
+    Serial.println(sin(((225-direction)/57.2957795)));
+
+    Serial.print("sin(((315-");
+    Serial.print(direction);
+    Serial.print("direction)/57.2957795) = ");
+    Serial.println(sin(((315-direction)/57.2957795)));
+  #endif
+
   Serial.begin(9600);
   Serial.println("Hello!");
 
@@ -49,52 +68,6 @@ void setup() {
 
   pinMode(13, OUTPUT);
 
-#ifdef LEARNABOUTMATHS
-  Serial.println("Testing Maths");
-  float direction = 0;
-
-  Serial.print("sin(((45-");
-  Serial.print(direction);
-  Serial.print("direction)/57.2957795) = ");
-  Serial.println(sin(((45-direction)/57.2957795)));
-
-  Serial.print("sin(((135-");
-  Serial.print(direction);
-  Serial.print("direction)/57.2957795) = ");
-  Serial.println(sin(((135-direction)/57.2957795)));
-
-  Serial.print("sin(((225-");
-  Serial.print(direction);
-  Serial.print("direction)/57.2957795) = ");
-  Serial.println(sin(((225-direction)/57.2957795)));
-
-  Serial.print("sin(((315-");
-  Serial.print(direction);
-  Serial.print("direction)/57.2957795) = ");
-  Serial.println(sin(((315-direction)/57.2957795)));
-
-
-  direction = 45;
-  Serial.print("sin(((45-");
-  Serial.print(direction);
-  Serial.print("direction)/57.2957795) = ");
-  Serial.println(sin(((45-direction)/57.2957795)));
-
-  Serial.print("sin(((135-");
-  Serial.print(direction);
-  Serial.print("direction)/57.2957795) = ");
-  Serial.println(sin(((135-direction)/57.2957795)));
-
-  Serial.print("sin(((225-");
-  Serial.print(direction);
-  Serial.print("direction)/57.2957795) = ");
-  Serial.println(sin(((225-direction)/57.2957795)));
-
-  Serial.print("sin(((315-");
-  Serial.print(direction);
-  Serial.print("direction)/57.2957795) = ");
-  Serial.println(sin(((315-direction)/57.2957795)));
-#endif
  
 
   //runWheelsIndividually(500);   // test each wheel CCW & CW for 500ms

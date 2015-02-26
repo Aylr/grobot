@@ -112,35 +112,36 @@ void loop(){
 }
 
 
-void goTheta(unsigned int time, float direction, unsigned char speed){
-  // This function takes a time, direction (positive 0-360 degrees CCW from front of robot), and speed (0-255)
+void goTheta(unsigned int time, float heading, unsigned char speed){
+  // This function takes a time, heading (positive 0-360 degrees CCW from front of robot), and speed (0-255)
   // It then does some maths and runs each wheel appropriately to get the robot to run
-  // the given directions
+  // the given headings
 
-  float ratios[4];    //used for maths
-  float max = 0;      //used to find the largest ratio vector
-  int pwm[4];         //used for final 0-255 pwm
+  float ratios[4];    // used for maths
+  float max = 0;      // used to find the largest ratio vector
+  int pwm[4];         // used for final 0-255 pwm
+  bool tempDir = 0;   // used to hold the final heading
 
   #ifdef DEBUG
     Serial.print("\ngoTheta called with time = ");
     Serial.print(time);
-    Serial.print(" and direction = ");
-    Serial.println(direction);
+    Serial.print(" and heading = ");
+    Serial.println(heading);
   #endif
 
   // ghetto sanity checking
   // This bit may definitely cause trouble in the future if values outside 0-360 are expected to work
-  if(direction>360){      //if given direction is more than 360, just use 360
-    direction=360;
-  }else if(direction<0){  // if given direction is negative, just go 0
-    direction = 0;
+  if(heading>360){      //if given heading is more than 360, just use 360
+    heading=360;
+  }else if(heading<0){  // if given heading is negative, just go 0
+    heading = 0;
   }
 
   // determine relative ratios of motor power
-  ratios[0] = sin(((45-direction)/57.2957795)); //Front Left ***convert to radians!!!
-  ratios[1] = sin(((135-direction)/57.2957795)); //Back Left
-  ratios[2] = sin(((225-direction)/57.2957795)); //Back Right
-  ratios[3] = sin(((315-direction)/57.2957795)); //Front Right
+  ratios[0] = sin(((45-heading)/57.2957795)); //Front Left ***convert to radians!!!
+  ratios[1] = sin(((135-heading)/57.2957795)); //Back Left
+  ratios[2] = sin(((225-heading)/57.2957795)); //Back Right
+  ratios[3] = sin(((315-heading)/57.2957795)); //Front Right
 
 
   #ifdef DEBUG                    //print some useful stuff to check the maths
@@ -186,38 +187,14 @@ void goTheta(unsigned int time, float direction, unsigned char speed){
   #endif
 
 
-  analogWrite(pwm1, abs(pwm[0]));
-  analogWrite(pwm2, abs(pwm[1]));
-  analogWrite(pwm3, abs(pwm[2]));
-  analogWrite(pwm4, abs(pwm[3]));
-
-  if(pwm[0]>=0){           // if speed is postive
-    digitalWrite(FL1, HIGH);//wheel 1 FL
-    digitalWrite(FL2, LOW);
-  }else if(pwm[0]<0){
-    digitalWrite(FL1, LOW);
-    digitalWrite(FL2, HIGH);
-  }
-  if(pwm[1]>=0){           // if speed is postive
-    digitalWrite(BL1, HIGH);//wheel 2 BL
-    digitalWrite(BL2, LOW);
-  }else if(pwm[1]<0){
-    digitalWrite(BL1, LOW);
-    digitalWrite(BL2, HIGH);
-  }
-  if(pwm[2]>=0){           // if speed is postive
-    digitalWrite(BR1, HIGH);//wheel 3 BR
-    digitalWrite(BR2, LOW);
-  }else if(pwm[2]<0){
-    digitalWrite(BR1, LOW);
-    digitalWrite(BR2, HIGH);
-  }
-  if(pwm[3]>=0){           // if speed is postive
-    digitalWrite(FR1, HIGH);//wheel 4 FR
-    digitalWrite(FR2, LOW);
-  }else if(pwm[3]<0){
-    digitalWrite(FR1, LOW);
-    digitalWrite(FR2, HIGH);
+  for(int i=0;i<4;i++){     // for each of 4 wheels
+    if(pwm[i]>=0){            // if pwm speed is positive
+      tempDir = 1;            // ... set wheel to CCW
+    }else if(pwm[i]<0){       // if pwm speed is negative
+      tempDir = 0;            // ... set wheel to CW
+    }
+    runWheel((i+1),tempDir,abs(pwm[i]));    // run the wheel
+    // (adding 1 to get the wheel # from the array index) with the speed and dir computed
   }
 
   digitalWrite(13, HIGH); //LED indicator ON

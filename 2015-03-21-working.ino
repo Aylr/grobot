@@ -11,7 +11,6 @@
 #define BR1 34
 #define BR2 36
 
-
 //These pins below, should be PWM pins on arduino
 
 #define pwm1 6
@@ -19,37 +18,23 @@
 #define pwm3 9
 #define pwm4 7
 
-#define DEBUG TRUE        // uncomment to show serial debug messages
-//#define LEARNABOUTMATHS // uncomment to get a bunch of serial output to learn about sin() maths
+// Important global variables
+
+byte tempSerial;                            // used as a place to store an incoming byte of serial data
+byte tempPWM = 0;                           // stores the latest theta PWM speed
+int tempTheta = 0;                          // stores the latest theta
+bool tempRotateDirection = 0;               // stores the latest rotation direction
+bool tempJoystickToggleButton = 0;          // stores the latest toggle button
+byte tempABCDButtons = 0;                   // stores the latest buttons
+byte tempRotatePWM = 255;                   // stores the latest rotation PWM speed
+bool newCommandToRotate = false;            // a global flag used to set if there is a new rotate command available
+
+// #define DEBUG TRUE        // uncomment to show serial debug messages
 
 
 void setup() {
-  #ifdef LEARNABOUTMATHS
-    Serial.println("Testing Maths");
-    float direction = 0;
-
-    Serial.print("sin(((45-");
-    Serial.print(direction);
-    Serial.print("direction)/57.2957795) = ");
-    Serial.println(sin(((45-direction)/57.2957795)));
-
-    Serial.print("sin(((135-");
-    Serial.print(direction);
-    Serial.print("direction)/57.2957795) = ");
-    Serial.println(sin(((135-direction)/57.2957795)));
-
-    Serial.print("sin(((225-");
-    Serial.print(direction);
-    Serial.print("direction)/57.2957795) = ");
-    Serial.println(sin(((225-direction)/57.2957795)));
-
-    Serial.print("sin(((315-");
-    Serial.print(direction);
-    Serial.print("direction)/57.2957795) = ");
-    Serial.println(sin(((315-direction)/57.2957795)));
-  #endif
-
   Serial.begin(9600);
+  Serial1.begin(9600);
   Serial.println("Hello!");
 
   pinMode(FL1, OUTPUT);
@@ -67,26 +52,106 @@ void setup() {
   pinMode(pwm4, OUTPUT);
 
   pinMode(13, OUTPUT);
-
  
 
   //runWheelsIndividually(500);   // test each wheel CCW & CW for 500ms
 
-  goTheta(4000, 0, 255);        // go straight for 4 seconds
-  square(1500, 200);            // draw a square of size 2000 and speed 255
-  rotate(1000, 255, 0);
+//  goTheta(0, 200);        // go straight for 4 seconds
+//  delay(2000);
+//  stop();
+
+//  square(1500, 200);            // draw a square of size 2000 and speed 255
+//  rotate(1000, 255, 0);
 
 
 }
 
 
 void loop(){
-  //put serial listener here
+    if (Serial1.available()>0){                     // are there incoming serial bytes?
+        if (getValidCommandFromSerial() == 1){      // are those a valid command?
+            runCommands();                          // yes to both? Great, execute that command
+        }
+    }
+
+    delay(2);                                       // wait for a bit.
+
 }
 
 
-void goTheta(unsigned int time, float heading, unsigned char speed){
-  // This function takes a time, heading (positive 0-360 degrees CCW from front of robot), and speed (0-255)
+void runCommands(){                                 // executes commands from the global command variables
+    #ifdef DEBUG
+        Serial.println("Running new command");
+    #endif
+
+    // The main question here is which has priority? Or more importantly, can BOTH go at once? How?
+
+    if (newCommandToRotate){                        // if there is a new rotate command
+        rotate(tempRotatePWM, tempRotateDirection); // rotate
+    }else{                                          // if not, do gotheta
+        goTheta(float(tempTheta), tempPWM);
+    }
+}
+
+
+int getValidCommandFromSerial(){           // listens to the serial and returns 0 if invalid command and 1 if valid commands received
+    tempSerial = byte(Serial1.read());
+
+    if(tempSerial == byte(255)){                    // is the first byte the start character?
+        tempPWM = readByte();                       // next byte is PWM
+        tempTheta = readByte();                     // next byte is first part of theta
+        tempTheta = tempTheta + readByte();         // next byte is second part of theta (addition of two bytes (0-360))
+        tempJoystickToggleButton = readByte();      // next byte is joystick toggle
+        tempABCDButtons = readByte();               // next byte is button detail
+
+        // rotation button logic
+        if (tempABCDButtons == char(66)) {          // if left button (CCW) has been pressed
+            tempRotateDirection = 0;
+            newCommandToRotate = true;
+        }else if (tempABCDButtons == char(67)){     // if right button (CW) has been pressed
+            tempRotateDirection = 1;
+            newCommandToRotate = true;
+        }else{                                      // if niether left or right has been pressed
+            newCommandToRotate = false;
+        }
+
+        // logic for override button and ball drop button should probably go here
+        // and be similar to the section above.
+        
+        #ifdef DEBUG
+            Serial.print("Start command!");
+            Serial.print(" PWM= ");
+            Serial.print(tempPWM);
+            Serial.print("  Theta= " );
+            Serial.print(tempTheta);
+            Serial.print(" Override= ");
+            Serial.print(tempJoystickToggleButton);
+            Serial.print(" newCommandToRotate= ");
+            Serial.print(newCommandToRotate);
+            Serial.print(" tempRotateDirection= ");
+            Serial.print(tempRotateDirection);
+            Serial.print(" ABCD = ");
+            Serial.println(tempABCDButtons);
+        #endif
+
+        return 1;           // valid commands received and stored
+    }else{
+        return 0;           // no valid commands received
+    }
+}
+
+
+int readByte(){               // This blocks anything else until reading next byte from serial
+  while(true){
+    if(Serial1.available()>0){
+      return Serial1.read();
+  }
+ }
+}
+
+
+void goTheta(float heading, unsigned char speed){
+  // This function takes a heading (positive 0-360 degrees CCW from front of robot), and speed (0-255)
   // It then does some maths and runs each wheel appropriately to get the robot to run
   // the given headings
 
@@ -96,8 +161,8 @@ void goTheta(unsigned int time, float heading, unsigned char speed){
   bool tempDir = 0;   // used to hold the final heading
 
   #ifdef DEBUG
-    Serial.print("\ngoTheta called with time = ");
-    Serial.print(time);
+    Serial.print("\ngoTheta called with speed = ");
+    Serial.print(speed);
     Serial.print(" and heading = ");
     Serial.println(heading);
   #endif
@@ -129,7 +194,7 @@ void goTheta(unsigned int time, float heading, unsigned char speed){
     Serial.print("\n");
   #endif
 
-  //find the maximum ratio so we can scale the values up later
+  // find the maximum ratio so we can scale the values up later
   max = abs(ratios[0]);             // start with max = first element
 
   for(int i=1;i<4;i++) {            // for each element in the array
@@ -144,7 +209,7 @@ void goTheta(unsigned int time, float heading, unsigned char speed){
   #endif
 
   for(int i=0;i<4;i++){             // for each element in the array
-    pwm[i] = round(speed*(ratios[i]/max));    //do the scaling math (and truncate float to int)
+    pwm[i] = round(speed * (ratios[i]/max));    //do the scaling math (and truncate float to int)
   }
 
   #ifdef DEBUG                    //print some useful stuff to check the maths
@@ -171,9 +236,6 @@ void goTheta(unsigned int time, float heading, unsigned char speed){
   }
 
   digitalWrite(13, HIGH); //LED indicator ON
-  delay(time);     //how long to actually go
-  stop();
-
 }
 
 
@@ -199,23 +261,20 @@ void stop(){
 
 //Rotate
 
-void rotate(unsigned int time, unsigned char speed, bool direction){
-
+void rotate(unsigned char speed, bool direction){
   for(int i=0;i<4;i++){
     runWheel((i+1),direction,speed);
   }
   
   digitalWrite(13, HIGH); //LED indicator ON
-
-  delay(time); //how long to actually go
-  stop();
 }
+
 
 void runWheel(unsigned char wheelNum, bool direction, unsigned char speed){
   // This function abstracts out all the mucking about with setting the appropriate
   // pin HIGH/LOW for each wheel. The idea is to simply make a call to runWheel()
   // so you don't have to constantly remember which HIGH/LOW combination is which
-  // direction. For example, to run wheel 3 CW at speed 150, run runWheel(3,1,150)
+  // direction. For example, to run wheel 3, CW at speed 150, run runWheel(3,1,150)
 
   unsigned char tempWheelPin1;
   unsigned char tempWheelPin2;
@@ -251,11 +310,16 @@ void runWheel(unsigned char wheelNum, bool direction, unsigned char speed){
 }
 
 
-void square(unsigned int time, unsigned char speed){     // make the robot perform a square of given "time" size & given speed
-  goTheta(time, 0, speed);
-  goTheta(time, 90, speed);
-  goTheta(time, 180, speed);
-  goTheta(time, 270, speed);
+void square(unsigned int time, unsigned char speed){
+    // make the robot perform a square of given "time" size & given speed
+    goTheta(0, speed);
+    delay(time);
+    goTheta(90, speed);
+    delay(time);
+    goTheta(180, speed);
+    delay(time);
+    goTheta(270, speed);
+    delay(time);
 }
 
 

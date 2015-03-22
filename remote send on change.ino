@@ -85,6 +85,7 @@ void readJoystickAndButtons (){
     currentBallDrop = digitalRead(Ball_drop);
 }
 
+
 void setLastCommandsForComparison(){
     lastAnalogPin0 = currentAnalogPin0;                     // set the last reading as current for the next loop
     lastAnalogPin1 = currentAnalogPin1;                     // to look for change next time.
@@ -96,8 +97,8 @@ void setLastCommandsForComparison(){
 }
 
 
-void computeAndSendCommands(){
-    #ifdef DEBUG_SERIAL_TO_COMPUTER
+void computeAndSendCommands(){                          // This function does all the heavy lifting of computing the angles, buttons, etc
+    #ifdef DEBUG_SERIAL_TO_COMPUTER                     // and sending the data to the xbee
         Serial.print("Toggle: ");
         Serial.print(currentToggle);
         Serial.print(" X: ");
@@ -111,7 +112,7 @@ void computeAndSendCommands(){
         Serial.print("\n");
     #endif
 
-    Serial.print(char (255));                 // start character
+    Serial.print(char (255));                 // send start character
     mySerial.print(char (255));
 
     //
@@ -135,6 +136,9 @@ void computeAndSendCommands(){
     //
 
     r = round(sqrt(pow(x,2) + pow(y,2)));   // ***THINK about adding a round() here
+
+    r = constrain(r, 0, 175);               // limit to smallest joystick value
+    r = map(r, 0, 175, 0, 255);             // then scale up to full 255 pwm
 
     #ifdef DEBUG_SERIAL_TO_COMPUTER
         Serial.print(" r: ");
